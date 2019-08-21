@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "iacVMName": {
+      "value": "goVM"
+    },
+
+
+    "essmvmName": {
+      "value": "pabaserv"
+    },
+    "essmvmAdminUserName": {
+      "value": "pabade"
+    },
+    "essmvmAdminPassword": {
+      "value": "Pa55w.rd@123"
+    },
+    "essmpubipDnsName": {
+      "value": "paba-vm"
+    },
+
+    "virtualnetwork": {
+      "value": "10.10.0.0/16"
+    },
+
+
+    "virtualSubnet1Name": {
+      "value": "testserver"
+    },
+    "virtualSubnet1ip": {
+      "value": "10.10.42.61/24"
+    },
+
+    "virtualSubnet2Name": {
+      "value": "dataserver"
+    },
+    "virtualSubnet2ip": {
+      "value": "10.10.15.101/24"
+    }
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "IACStorageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "IACStorageAcctType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "IACSAType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "iacType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "iacVMName": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "iacVMAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "iacVMAdminPassword": {
+      "type": "securestring"
+    },
+    "iacVMWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "Windows-Server-Technical-Preview"
+      ]
+    },
+    "pubipDnsName": {
+      "type": "string",
+      "minLength": 1
+    },
+   
+    "virtualnetwork": {
+      "type": "string",
+      "minLength": 1
+    },
+    "virtualSubnet1Name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "virtualSubnet1ip": {
+      "type": "string",
+      "minLength": 1
+    },
+    "virtualSubnet2Name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "virtualSubnet2ip": {
+      "type": "string",
+      "minLength": 1
+    },
+    "storageacctType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "essmvmName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "essmvmAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "essmvmAdminPassword": {
+      "type": "securestring"
+    },
+    "essmvmWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "Windows-Server-Technical-Preview"
+      ]
+    },
+    "essmpubipDnsName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+
+
+  "variables": {
+    "IAC_VirtualNetworkPrefix": "[parameters('virtualnetwork')]",
+    "IAC_VirtualNetworkSubnet1Name": "[parameters('virtualSubnet1Name')]",
+    "IAC_VirtualNetworkSubnet1Prefix": "[parameters('virtualSubnet1ip')]",
+    "IAC_VirtualNetworkSubnet2Name": "[parameters('virtualSubnet2Name')]",
+    "IAC_VirtualNetworkSubnet2Prefix": "[parameters('virtualSubnet2ip')]",
+    "IACStorageAccountName": "[concat('IACStorageAccount', uniqueString(resourceGroup().id))]",
+    "IACStorageAcctName": "[concat('IACStorageAcct', uniqueString(resourceGroup().id))]",
+    "IACSAName": "[concat('IACSA', uniqueString(resourceGroup().id))]",
+    "iacName": "[concat('iac', uniqueString(resourceGroup().id))]",
+    "iacVMImagePublisher": "MicrosoftWindowsServer",
+    "iacVMImageOffer": "WindowsServer",
+    "iacVMOSDiskName": "iacVMOSDisk",
+    "iacVMVmSize": "Standard_D2_v2",
+    "iacVMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'IAC_VirtualNetwork')]",
+    "iacVMSubnetRef": "[concat(variables('iacVMVnetID'), '/subnets/', variables('IAC_VirtualNetworkSubnet1Name'))]",
+    "iacVMStorageAccountContainerName": "vhds",
+    "iacVMNicName": "[concat(parameters('iacVMName'), 'NetworkInterface')]",
+    "pubipName": "pubip",
+    "storageacctName": "[concat('storageacct', uniqueString(resourceGroup().id))]",
+    "essmvmImagePublisher": "MicrosoftWindowsServer",
+    "essmvmImageOffer": "WindowsServer",
+    "essmvmOSDiskName": "essmvmOSDisk",
+    "essmvmVmSize": "Standard_D2_v2",
+    "essmvmVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'IAC_VirtualNetwork')]",
+    "essmvmSubnetRef": "[concat(variables('essmvmVnetID'), '/subnets/', variables('IAC_VirtualNetworkSubnet2Name'))]",
+    "essmvmStorageAccountContainerName": "vhds",
+    "essmvmNicName": "[concat(parameters('essmvmName'), 'NetworkInterface')]",
+    "essmpubipName": "essmpubip"
+  },
+  "resources": [
+    {
+      "name": "IAC_VirtualNetwork",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "IAC_VirtualNetwork"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('IAC_VirtualNetworkPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('IAC_VirtualNetworkSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('IAC_VirtualNetworkSubnet1Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('IAC_VirtualNetworkSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('IAC_VirtualNetworkSubnet2Prefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('storageacctName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('storageacctType')]"
+      },
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "storageacct"
+      },
+      "kind": "Storage"
+    },
+    {
+      "name": "[variables('essmvmNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'IAC_VirtualNetwork')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('essmpubipName'))]"
+      ],
+      "tags": {
+        "displayName": "essmvmNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('essmvmSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('essmpubipName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('essmvmName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageacctName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('essmvmNicName'))]"
+      ],
+      "tags": {
+        "displayName": "essmvm"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('essmvmVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('essmvmName')]",
+          "adminUsername": "[parameters('essmvmAdminUsername')]",
+          "adminPassword": "[parameters('essmvmAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('essmvmImagePublisher')]",
+            "offer": "[variables('essmvmImageOffer')]",
+            "sku": "[parameters('essmvmWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "essmvmOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageacctName')), '2016-01-01').primaryEndpoints.blob, variables('essmvmStorageAccountContainerName'), '/', variables('essmvmOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('essmvmNicName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[variables('essmpubipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "essmpubip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('essmpubipDnsName')]"
+        }
+      }
+    }],
+  "outputs": {}
+}
